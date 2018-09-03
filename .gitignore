@@ -1,0 +1,5 @@
+##### Used to ignore files in git, below are high curn files
+.idea
+venv
+__pycache__
+sentiMap/__pycache__

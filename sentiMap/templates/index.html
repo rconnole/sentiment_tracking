@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tracking User Sentiment</title>
+</head>
+<body>
+
+<div class="col col-lg-6">
+    <label for="obsBehaviour">Observed Behaviour</label>
+    <textarea rows="3" class="form-control" id="obsBehaviour"
+              placeholder="Enter Observed Behaviour (Mandatory)"></textarea>
+</div>
+
+
+{% block body %}
+  <h2>Register</h2>
+    <form action="{{ url_for('startSentiMap') }}" method="post">
+        <dl>
+            <dt>Username:</dt>
+            <dd><input type="text" name="username"></dd>
+            <dt>Password:</dt>
+            <dd><input type="password" name="password"></dd>
+        </dl>
+        <input type="submit" value="Start SentiMap">
+    </form>
+{% endblock %}
+
+
+</body>
+</html>
