@@ -3,6 +3,7 @@ from neo4j.exceptions import ConstraintError
 graph = Graph()
 matcher = NodeMatcher(graph)
 
+
 ### Data Model ###############################################################
 class Word:
     def __init__(self, token, tag):
@@ -16,15 +17,6 @@ class Word:
     def find_by_tag(self):
         word = graph.match_one("Word", "Tag", self.Tag)
 
-    def create(self):
-        if not self.find():
-            word = Node(label="Word", Token=self.Token, Tag=self.Tag)
-            graph.create(word)
-            return True
-        else:
-            return False
-
-
 class Document:
     def __init__(self, sentence, tokens, sentiment, authoredBy, happenedOn):
         self.Sentence = sentence
@@ -37,24 +29,6 @@ class Document:
         doc = graph.match_one("Document", "Sentence", self.Sentence)
         return doc
 
-    def create(self, user):
-        try:
-            tx = graph.begin()
-
-            # print("creating document for user: ", user)
-            doc = Node("Document", Sentence=self.Sentence, Tokens=self.Tokens, Sentiment=self.Sentiment)
-            graph.create(doc, {user, "AUTHORED", 0})
-            tx.commit()
-            return True
-        except:
-            return False
-
-    def contain_tokens(self, tokens):
-        return
-
-    def happened_on(self, time):
-        return
-
 
 class User:
     def __init__(self, handle, sentiment):
@@ -66,18 +40,6 @@ class User:
         print(graph.exists())
         user = graph.exists("User", "Handle", self.Handle)
         return user
-
-    def create(self):
-        try:
-            query = "CREATE (u:User {Handle:$handle, Sentiment:$sentiment})"
-            query = query.format(handle=self.Handle, sentiment=self.Sentiment)
-
-            graph.run(query)
-
-
-            return True
-        except:
-            return False
 
     def mentions(self, handle):
         return
@@ -97,14 +59,6 @@ class TimeSlice:
     def find(self):
         time = graph.match_one("TimeSlice", "Time", self.Time)
         return time
-
-    def create(self):
-        if not self.find():
-            time = Node("TimeSlice", Time=self.Time)
-            graph.create(time)
-            return True
-        else:
-            return False
 
 
 def create_node(o):

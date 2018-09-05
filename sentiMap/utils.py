@@ -6,15 +6,7 @@ from nltk import word_tokenize, pos_tag
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import Normalizer
-
-from .models import User, Document, Word, TimeSlice, create_node
+from .models import User, Document, create_node, graph
 
 class Functions:
     def __init__(self):
@@ -25,7 +17,7 @@ class Functions:
             entry[2] = [word for word in entry[2] if word not in stopwords.words('english')]
         print(target_corpus)
 
-    def read_in_training(self, tokenize=True):
+    def read_in_training(self, tokenize=True, limit=0):
         print("File directory found at " + config.unity_training_file)
         lines = []
         timestamp_regex = "\[\d\d\:\d\d\]"
@@ -55,6 +47,9 @@ class Functions:
                 actual_lines.append(output)
                 lines.append([timestamp, user, sentence])
         print("Training Data Entries: {}".format(len(actual_lines)))
+
+        if limit >= 1:
+            return lines[0:limit]
         return lines
 
 
@@ -62,39 +57,22 @@ class SentimentAnalysis:
     def __init__(self):
         self.func = Functions()
         self.analyser = SentimentIntensityAnalyzer()
-        self.sentiments = {}
 
-    def get_sentiment(self):
-        corpus = self.func.read_in_training(False)
+    def get_sentiment_entire_corpus(self, corpusList):
         sentiment = []
-        for sentence in corpus[0:100]:
+        for sentence in corpusList:
             snt = self.analyser.polarity_scores(sentence[2])
-            tokens = self.get_tags(sentence[2])
-            # print("{:-<40} {}".format(sentence, str(snt)))
             sentiment.append([sentence[0], sentence[1], sentence[2], snt])
-            user = User(handle=sentence[1], sentiment=snt["compound"])
-            user_node = create_node(user)
-            document = Document(sentence=sentence[2], tokens=tokens, sentiment=snt["compound"], authoredBy=user_node, happenedOn=sentence[0])
-            # document.create()
-            create_node(document)
-            # if not sentence[1] in self.sentiments.keys():
-            #
-            #      = UserSentiment(sentence[0], sentence[1], tags, snt)
-            #     self.sentiments[userSentiment.handle] = userSentiment
-            # else:
-            #     self.sentiments[sentence[1]].add_words(tags)
-            #     self.sentiments[sentence[1]].add_sentiment(snt)
         return sentiment
-    #
-    # def create_user_sentiment(self, user, sentence, time):
-    #     snt = self.analyser.polarity_scores(sentence)
-    #     tags = self.get_tags(sentence[2])
-    #     return UserSentiment(user, time, tags, snt)
 
-    def get_summary(self):
-        sentiment = self.get_sentiment()
+    def get_sentiment_one_post(self, sentence):
+        return self.analyser.polarity_scores(sentence)
+
+    def get_summary(self, corpus):
+        sentimentList = self.get_sentiment_entire_corpus(corpus)
+
         summary = {"positive": 0, "neutral": 0, "negative": 0}
-        for snt in sentiment:
+        for snt in sentimentList:
             if snt[3]["compound"] == 0.0:
                 summary["neutral"] += 1
             elif snt[3]["compound"] > 0.0:
@@ -102,9 +80,36 @@ class SentimentAnalysis:
             else:
                 summary["negative"] += 1
         print(summary)
+        return summary
 
-    def get_tags(self, sentence):
+
+class TopicAnalysis:
+    def __init__(self):
+        self.temp = ""
+
+
+class GraphDriver:
+    # for use with the API and Web page calls
+    def __init__(self):
+        self.graph = graph
+
+    def createPost(self, handle, sentiment, sentence, time):
+        user = User(handle=handle, sentiment=sentiment)
+        user_node = create_node(user)
         tokens = {}
         for token, tag in pos_tag(word_tokenize(sentence)):
             tokens[token] = tag
-        return tokens
+        document = Document(sentence=sentence[2], tokens=tokens, sentiment=sentiment, authoredBy=user_node,
+                            happenedOn=time)
+        create_node(document)
+
+    def get_sentiment_summary(self):
+        negativeScore = graph.run("MATCH (Document) WHERE Document.Sentiment = 0 RETURN count(Document)").evaluate()
+        positiveScore = graph.run("MATCH (Document) WHERE Document.Sentiment > 0 RETURN count(Document)").evaluate()
+        neutralScore = graph.run("MATCH (Document) WHERE Document.Sentiment < 0 RETURN count(Document)").evaluate()
+        return {"positive": positiveScore, "neutral": neutralScore, "negative": negativeScore}
+
+    def get_user_sentiment(self):
+
+        return {}
+
