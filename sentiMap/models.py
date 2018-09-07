@@ -17,6 +17,7 @@ class Word:
     def find_by_tag(self):
         word = graph.match_one("Word", "Tag", self.Tag)
 
+
 class Document:
     def __init__(self, sentence, tokens, sentiment, authoredBy, happenedOn):
         self.Sentence = sentence

@@ -3,3 +3,5 @@
 venv
 __pycache__
 sentiMap/__pycache__
+# do not commit model
+ldaModel.pkl

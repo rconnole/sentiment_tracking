@@ -1,12 +1,12 @@
 #from .models import User, get_todays_recent_posts
-from sentiMap import utils
+from sentiMap import controller
 import matplotlib.pyplot as plt
 import io
 import base64
 from flask import Flask, request, session, render_template, after_this_request
 app = Flask(__name__)
 
-graphDriver = utils.GraphDriver()
+graphDriver = controller.GraphDriver()
 
 @app.route('/')
 def index():

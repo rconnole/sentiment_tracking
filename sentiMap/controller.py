@@ -3,10 +3,15 @@ import config
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 from nltk import word_tokenize, pos_tag
-
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import numpy as np
+
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.externals import joblib
 
 from .models import User, Document, create_node, graph
+
 
 class Functions:
     def __init__(self):
@@ -53,6 +58,21 @@ class Functions:
         return lines
 
 
+class TopicAnalysis:
+    def __init__(self):
+        self.lda = LatentDirichletAllocation()
+        (self.features, self.lda.components_, self.lda.exp_dirichlet_component_, self.lda.doc_topic_prior_) = joblib.load(config.lda_model_file_name)
+        self.tf_vectorizer = CountVectorizer(vocabulary=self.features, stop_words='english')
+
+    def get_topics_from_post(self, sentence):
+        tf_sentence = self.tf_vectorizer.fit_transform([sentence])
+        post_topic = self.lda.transform(tf_sentence)
+
+        topic_most_pr = post_topic[0].argmax()
+        print("This doc refers to topic: {}\n".format(topic_most_pr))
+        return topic_most_pr
+
+
 class SentimentAnalysis:
     def __init__(self):
         self.func = Functions()
@@ -81,11 +101,6 @@ class SentimentAnalysis:
                 summary["negative"] += 1
         print(summary)
         return summary
-
-
-class TopicAnalysis:
-    def __init__(self):
-        self.temp = ""
 
 
 class GraphDriver:
