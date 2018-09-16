@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="col-lg-4">
+    <table>
+        <tr>
+            <td>
+                <table style="width:100%">
+                    <tr>
+                        <th>Username</th>
+                        <th>Post Count</th>
+                    </tr>
+                    {% for user in users %}
+
+                    <tr>
+                        <td><a href="/user/{{user[0]}}">{{user[0]}}</a></td>
+                        <td>{{ user[1]}}</td>
+                    </tr>
+                    {% endfor %}
+
+                </table>
+            </td>
+            <td>
+                <h4>Sentiment Over Time</h4>
+                <img src="data:image/png;base64,{{ sentiChart }}"></body>
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}

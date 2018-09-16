@@ -1,31 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tracking User Sentiment</title>
-</head>
-<body>
+<!--<body>-->
 
-<div class="col col-lg-6">
-    <label for="obsBehaviour">Observed Behaviour</label>
-    <textarea rows="3" class="form-control" id="obsBehaviour"
-              placeholder="Enter Observed Behaviour (Mandatory)"></textarea>
-</div>
+<!--<div class="col col-lg-6">-->
+<!--<label for="obsBehaviour">Observed Behaviour</label>-->
+<!--<textarea rows="3" class="form-control" id="obsBehaviour"-->
+<!--placeholder="Enter Observed Behaviour (Mandatory)"></textarea>-->
+<!--</div>-->
 
+{% extends "base.html" %}
 
 {% block body %}
-  <h2>Register</h2>
-    <form action="{{ url_for('startSentiMap') }}" method="post">
-        <dl>
-            <dt>Username:</dt>
-            <dd><input type="text" name="username"></dd>
-            <dt>Password:</dt>
-            <dd><input type="password" name="password"></dd>
-        </dl>
-        <input type="submit" value="Start SentiMap">
-    </form>
+<div class="container">
+    <div class="col-lg-12">
+        <div class="col-lg-4">
+            <h2>Send New Message</h2>
+            <form action="{{ url_for('get_sentiment_data') }}" method="post">
+                <dl>
+                    <dt>Username:</dt>
+                    <dd><input type="text" name="username"></dd>
+                    <dt>Message</dt>
+                    <dd><input type="text" name="message"></dd>
+                </dl>
+                <input type="submit" value="Submit Message">
+            </form>
+        </div>
+        <div class="col-lg-4 align-left">
+            <table style="width:100%">
+                <tr>
+                    <th>Username</th>
+                    <th>Post Count</th>
+                </tr>
+                {% for user in users %}
+
+                <tr>
+                    <td><a href="/user/{{user[0]}}">{{user[0]}}</a></td>
+                    <td>{{ user[1]}}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+        <div class="col-lg-2">
+            <table style="width:100%">
+                <tr>
+                    <th>Topic</th>
+                    <th>Sentiment</th>
+                </tr>
+                {% for topic in topics%}
+
+                <tr>
+                    <td><a href="/topic/{{topic[1]}}">{{topic[1]}}</a></td>
+                    <td>{{ topic[0]}}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 
-</body>
-</html>

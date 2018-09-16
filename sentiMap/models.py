@@ -53,13 +53,19 @@ class User:
         return
 
 
-class TimeSlice:
+class CreationDate:
     def __init__(self, time):
         self.Time = time
 
     def find(self):
-        time = graph.match_one("TimeSlice", "Time", self.Time)
+        time = graph.match_one("CreationDate", "Time", self.Time)
         return time
+
+
+class Topic:
+    def __init__(self, index, feat_names):
+        self.topic_index = f"Topic {index}"
+        self.feature_names = feat_names
 
 
 def create_node(o):
@@ -67,8 +73,6 @@ def create_node(o):
     if isinstance(o, User):
         user = Node("User", Handle=o.Handle, Sentiment=o.Sentiment)
         try:
-            user = Node("User", Handle=o.Handle, Sentiment=o.Sentiment)
-            # print(graph.exists(user))
             graph.create(user)
         except ConstraintError:
             user = matcher.match("User", Handle=o.Handle).first()
@@ -84,11 +88,11 @@ def create_node(o):
         writtenBy = Relationship(o.AuthoredBy, "AuthoredBy", doc)
         graph.create(writtenBy)
 
-        time = Node("TimeSlice", Time=o.HappendOn)
+        time = Node("CreationDate", Time=o.HappendOn)
         try:
             graph.create(time)
         except ConstraintError:
-            time = matcher.match("TimeSlice", Time=o.HappendOn).first()
+            time = matcher.match("CreationDate", Time=o.HappendOn).first()
         happendOn = Relationship(doc, "HappenedOn", time)
         graph.create(happendOn)
 
@@ -101,3 +105,20 @@ def create_node(o):
             contains = Relationship(doc, "Contains", word)
             graph.create(contains)
         return doc
+
+    elif isinstance(o, Topic):
+        topic = Node("Topic", Index=o.topic_index, Features=[].append(feature for feature in o.feature_names.keys()))
+        try:
+            graph.create(topic)
+            print("Topic Created: ", o.topic_index)
+        except ConstraintError:
+            topic = matcher.match("Topic", Index=o.topic_index).first()
+        for token in o.feature_names.keys():
+            word = Node("Word", Token=token, Tag=o.feature_names[token])
+            try:
+                graph.create(word)
+            except ConstraintError:
+                word = matcher.match("Word", Token=token).first()
+            containsTerm= Relationship(topic, "containsTerm", word)
+            graph.create(containsTerm)
+        return topic

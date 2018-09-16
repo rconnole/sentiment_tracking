@@ -4,8 +4,10 @@ import topicAnalysis
 
 def main():
     print("Building topic model")
-    lda = topicAnalysis.LdaWithTfidf()
-    lda.read_test_as_bow()
+    lda = topicAnalysis.LdaWithTfidf(optimising=False)
+    # lda.split_twitter_file()
+    # lda.build_topic_model()
+    lda.load_model_for_eval()
 
 
     print("Run finished")
