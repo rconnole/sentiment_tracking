@@ -7,7 +7,6 @@ from datetime import datetime
 import numpy
 
 from nltk.tokenize import RegexpTokenizer
-from nltk import word_tokenize, pos_tag, WordNetLemmatizer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 graphDriver = controller.GraphDriver()
@@ -74,11 +73,12 @@ def test_vader_gold_standard():
     plt.savefig(config.results_dir + "corpus_metrics.png")
     plt.close()
 
+
 def get_avg_sentiment():
     summary = graphDriver.get_sentiment_summary()
     labels = 'Negative', "Positive", "Neutral"
-    sizes = [summary["negative"], summary["positive"], summary["neutral"]]
-    explode = (0, 0, 0)
+    sizes = [summary["negative"], summary["positive"]+1, summary["neutral"]]
+    explode = (0, 0.1, 0)
     colors = ["red", "green", "brown"]
 
     plt.pie(sizes, explode=explode, colors=colors, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
@@ -138,6 +138,12 @@ def get_sentiment_for_topics():
     plt.xlabel("Topics")
     plt.ylabel("Sentiment")
     plt.savefig(config.results_dir + "topic_sentiments.png")
+
+def get_sentiment_word_dist():
+    return
+
+def get_sentiment_token_dist():
+    return
 
 # get_avg_sentiment()
 # get_top_user_sentiment()

@@ -67,4 +67,29 @@ def get_user_data(username):
 
     return render_template("userData.html")
 
+
+@app.route('/user/<username>/metrics/posts', methods=['GET'])
+def get_all_posts_for_user(username):
+    return graphDriver.get_all_posts_by_user_over_time(username).to_json()
+
+@app.route('/user/<username>/metrics/sentiment', methods=['GET'])
+def get_sentiment_for_user(username):
+    return graphDriver.get_user_sentiment_over_time(username).to_json()
+
+@app.route('/user/<username>/metrics/topics', methods=['GET'])
+def get_topics_for_user(username):
+    return graphDriver.get_users_topics_as_lists(username).to_json()
+
+@app.route('/user/top', methods=['GET'])
+def get_top_posters():
+    return graphDriver.get_top_posters().to_json()
+
+@app.route('/topic//sentiment', methods=['GET'])
+def get_topic_sentiment():
+    return graphDriver.get_all_topic_sentiments().to_json()
+
+@app.route('/topic/<topic>/sentiment', methods=['GET'])
+def get_avg_sentiment(topic):
+    return graphDriver.get_avg_sentiment_about_topic(topic).to_json()
+
 create_app()

@@ -11,6 +11,8 @@ from nltk import word_tokenize, pos_tag, WordNetLemmatizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.externals import joblib
+from sklearn.metrics import roc_curve, auc
+
 
 
 class LdaWithTfidf:
@@ -154,7 +156,8 @@ class LdaWithTfidf:
 
     def build_topic_model(self, num_of_topics=config.num_of_topics, max_iterations=config.max_iterations):
         corpus = self.read_twitter_training_dataset()
-        print(corpus)
+        test = self.read_twitter_testing_dataset()
+
         if self.optimising:
             corpus = self.read_twitter_testing_dataset()
         training_tfidf = self.vectorizer.fit_transform(corpus)
@@ -194,7 +197,6 @@ class LdaWithTfidf:
             termFreq = data.sum(axis=0).getA1()
             docLength = data.sum(axis=1).getA1()
             termDists = components_ / components_.sum(axis=1)[:, None]
-            #docTopicDists =
             print("Data present, ", termFreq, docLength)
 
         # when optimising output graphs
@@ -217,5 +219,4 @@ class LdaWithTfidf:
             plt.grid(True)
             plt.savefig(config.topics_results_dir + "topic%d" % compNum + ".png")
             plt.close()
-
         return
